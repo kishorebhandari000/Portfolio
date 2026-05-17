@@ -31,30 +31,43 @@ function Register() {
       phone: value
     })
   }
+const handleSubmit = async (e) => {
+  e.preventDefault()
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-
-    if (
-      !form.fname ||
-      !form.lname ||
-      !form.email ||
-      !form.phone ||
-      !form.password ||
-      !form.cpassword
-    ) {
-      setError("Please fill in all fields")
-      return
-    }
-
-    if (form.password !== form.cpassword) {
-      setError("Passwords do not match")
-      return
-    }
-
-    setError("")
-    console.log(form)
+  if (
+    !form.fname ||
+    !form.lname ||
+    !form.email ||
+    !form.phone ||
+    !form.password ||
+    !form.cpassword
+  ) {
+    setError("Please fill in all fields")
+    return
   }
+
+  if (form.password !== form.cpassword) {
+    setError("Passwords do not match")
+    return
+  }
+
+  setError("")
+
+  try {
+    const response = await fetch("http://localhost:5000/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(form)
+    })
+
+    const data = await response.json()
+    console.log("response hit", data)
+  } catch (error) {
+    console.log("error", error)
+  }
+}
 
   return (
     <div
@@ -146,7 +159,7 @@ function Register() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 cursor-pointer"
             >
               {showPassword ? <HiEyeOff size={22} /> : <HiEye size={22} />}
             </button>
@@ -166,7 +179,7 @@ function Register() {
             <button
               type="button"
               onClick={() => setShowCPassword(!showCPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 cursor-pointer"
             >
               {showCPassword ? <HiEyeOff size={22} /> : <HiEye size={22} />}
             </button>
