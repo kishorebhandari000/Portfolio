@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function Login() {
   const navigate = useNavigate();
@@ -32,14 +33,20 @@ function Login() {
 
       if (json.success) {
         localStorage.setItem("token", json.token);
-        alert("Login successful");
+
+        toast.success("Login successful!");
+
         navigate("/");
       } else {
-        setError(json.error || "Invalid login details");
+        const message = json.error || "Invalid login details";
+        setError(message);
+        toast.error(message);
       }
     } catch (error) {
       console.log(error);
+
       setError("Backend server is not running");
+      toast.error("Backend server is not running");
     }
   };
 

@@ -1,73 +1,106 @@
-import { useState } from "react"
-import background from "../assets/background.jpeg"
-import { HiOutlineUser, HiOutlineMail, HiOutlinePhone } from "react-icons/hi"
-import { HiEye, HiEyeOff } from "react-icons/hi"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import background from "../assets/background.jpeg";
+import { HiOutlineUser, HiOutlineMail, HiOutlinePhone } from "react-icons/hi";
+import { HiEye, HiEyeOff } from "react-icons/hi";
+import { toast } from "react-toastify";
 
 function Register() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     fname: "",
     lname: "",
     email: "",
     phone: "",
     password: "",
-    cpassword: ""
-  })
+    cpassword: "",
+  });
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [showCPassword, setShowCPassword] = useState(false)
-  const [error, setError] = useState("")
+  const [showPassword, setShowPassword] = useState(false);
+  const [showCPassword, setShowCPassword] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
+    setError("");
     setForm({
       ...form,
-      [e.target.name]: e.target.value
-    })
-  }
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/\D/g, "")
+    const value = e.target.value.replace(/\D/g, "");
+    setError("");
     setForm({
       ...form,
-      phone: value
-    })
-  }
-const handleSubmit = async (e) => {
-  e.preventDefault()
+      phone: value,
+    });
+  };
 
-  if (
-    !form.fname ||
-    !form.lname ||
-    !form.email ||
-    !form.phone ||
-    !form.password ||
-    !form.cpassword
-  ) {
-    setError("Please fill in all fields")
-    return
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (form.password !== form.cpassword) {
-    setError("Passwords do not match")
-    return
-  }
+    if (
+      !form.fname ||
+      !form.lname ||
+      !form.email ||
+      !form.phone ||
+      !form.password ||
+      !form.cpassword
+    ) {
+      setError("Please fill in all fields");
+      toast.warning("Please fill in all fields");
+      return;
+    }
 
-  setError("")
+    if (form.password !== form.cpassword) {
+      setError("Passwords do not match");
+      toast.error("Passwords do not match");
+      return;
+    }
 
-  try {
-    const response = await fetch("http://localhost:5000/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(form)
-    })
+    try {
+      const response = await fetch("http://localhost:3000/api/auth/createuser", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-    const data = await response.json()
-    console.log("response hit", data)
-  } catch (error) {
-    console.log("error", error)
-  }
-}
+        body: JSON.stringify({
+          name: `${form.fname} ${form.lname}`,
+          email: form.email,
+          phone: form.phone,
+          password: form.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Registration successful!");
+
+        setForm({
+          fname: "",
+          lname: "",
+          email: "",
+          phone: "",
+          password: "",
+          cpassword: "",
+        });
+
+        navigate("/Login");
+      } else {
+        const message = data.error || "Registration failed";
+        setError(message);
+        toast.error(message);
+      }
+    } catch (error) {
+      console.log("error", error);
+      setError("Backend server is not running");
+      toast.error("Backend server is not running");
+    }
+  };
 
   return (
     <div
@@ -189,7 +222,9 @@ const handleSubmit = async (e) => {
         {form.cpassword && (
           <p
             className={`text-sm font-medium ${
-              form.password === form.cpassword ? "text-green-200" : "text-red-200"
+              form.password === form.cpassword
+                ? "text-green-200"
+                : "text-red-200"
             }`}
           >
             {form.password === form.cpassword
@@ -206,7 +241,7 @@ const handleSubmit = async (e) => {
         </button>
       </form>
     </div>
-  )
+  );
 }
 
-export default Register
+export default Register;

@@ -15,28 +15,24 @@ function Present() {
 
   const categories = [
     "All",
-    ...new Set(products.map((product) => product.category)),
+    ...new Set(products.map((product) => product.category).filter(Boolean)),
   ];
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name
-      .toLowerCase()
+      ?.toLowerCase()
       .includes(searchTerm.toLowerCase());
 
     const matchesCategory =
-      selectedCategory === "All" ||
-      product.category === selectedCategory;
+      selectedCategory === "All" || product.category === selectedCategory;
 
     return matchesSearch && matchesCategory;
   });
 
-  // quantity in cart
   const getQuantity = (product) => {
     const productId = product._id || product.id;
 
-    const item = cart.find(
-      (i) => (i._id || i.id) === productId
-    );
+    const item = cart.find((i) => (i._id || i.id) === productId);
 
     return item ? item.qty : 0;
   };
@@ -46,20 +42,42 @@ function Present() {
   };
 
   const handleEdit = (product) => {
-    console.log("Edit product:", product);
+    if (!product._id) {
+      alert("Local products cannot be edited. Only backend products can be edited.");
+      setOpenMenuId(null);
+      return;
+    }
+
+    navigate("/ManageProducts", {
+      state: {
+        product,
+        mode: "edit",
+      },
+    });
+
     setOpenMenuId(null);
   };
 
   const handleDelete = (product) => {
-    console.log("Delete product:", product);
+    if (!product._id) {
+      alert("Local products cannot be deleted. Only backend products can be deleted.");
+      setOpenMenuId(null);
+      return;
+    }
+
+    navigate("/ManageProducts", {
+      state: {
+        product,
+        mode: "delete",
+      },
+    });
+
     setOpenMenuId(null);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-6">
       <div className="max-w-7xl mx-auto">
-
-        {/* Hero Banner */}
         <div
           className="mb-10 text-center py-20 rounded-2xl bg-cover bg-center relative overflow-hidden"
           style={{ backgroundImage: `url(${bg})` }}
@@ -75,13 +93,15 @@ function Present() {
               Shop by category and find your favorite items
             </p>
 
-            <button className="mt-5 bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition">
-              Shop Now
+            <button
+              onClick={() => navigate("/ManageProducts")}
+              className="mt-5 bg-indigo-600 text-white px-6 py-2 rounded-full hover:bg-indigo-700 transition"
+            >
+              Add Product
             </button>
           </div>
         </div>
 
-        {/* Search and Filter */}
         <div className="bg-white shadow-md rounded-2xl p-4 mb-8 flex flex-col md:flex-row gap-4">
           <input
             type="text"
@@ -98,18 +118,15 @@ function Present() {
           >
             {categories.map((category, index) => (
               <option key={index} value={category}>
-                {category}
+                {category || "Uncategorized"}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Product Grid */}
         {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-
             {filteredProducts.map((product) => {
-
               const productId = product._id || product.id;
 
               return (
@@ -117,23 +134,21 @@ function Present() {
                   key={productId}
                   className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl hover:-translate-y-1 transition duration-300"
                 >
-
-                  {/* Image Section */}
                   <div className="relative bg-gray-100">
-
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-56 object-cover"
-                    />
+                   <img
+                         src={
+                               product.image
+                               ? `http://localhost:3000${product.image}`
+                               : "https://via.placeholder.com/300" }
+                               alt={product.name}
+                               className="w-full h-56 object-cover"
+                   />
 
                     <span className="absolute top-3 left-3 bg-indigo-600 text-white text-xs px-3 py-1 rounded-full">
-                      {product.category}
+                      {product.category || "Category"}
                     </span>
 
-                    {/* 3-dot menu */}
                     <div className="absolute top-3 right-3">
-
                       <button
                         onClick={() => toggleMenu(productId)}
                         className="bg-white/80 hover:bg-white text-gray-700 rounded-full w-8 h-8 flex items-center justify-center shadow text-xl font-bold"
@@ -143,7 +158,6 @@ function Present() {
 
                       {openMenuId === productId && (
                         <div className="absolute right-0 mt-1 w-36 bg-white rounded-xl shadow-lg z-10 overflow-hidden">
-
                           <button
                             onClick={() => handleEdit(product)}
                             className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
@@ -162,9 +176,7 @@ function Present() {
                     </div>
                   </div>
 
-                  {/* Product Info */}
                   <div className="p-5">
-
                     <h2 className="text-lg font-semibold text-gray-800">
                       {product.name}
                     </h2>
@@ -177,22 +189,16 @@ function Present() {
                       {product.description}
                     </p>
 
-                    {/* Buttons */}
                     <div className="flex gap-3 mt-5">
-
                       {getQuantity(product) === 0 ? (
-
                         <button
                           className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
                           onClick={() => addToCart(product)}
                         >
                           Add to Cart
                         </button>
-
                       ) : (
-
                         <div className="flex flex-1 items-center justify-between bg-gray-100 rounded-lg px-2">
-
                           <button
                             className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700"
                             onClick={() => removeCart(productId)}
@@ -219,7 +225,6 @@ function Present() {
                       >
                         View
                       </button>
-
                     </div>
                   </div>
                 </div>
@@ -227,7 +232,6 @@ function Present() {
             })}
           </div>
         ) : (
-
           <div className="text-center text-gray-500 text-lg mt-10">
             No products found.
           </div>

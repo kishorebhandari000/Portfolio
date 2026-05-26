@@ -14,7 +14,7 @@ import Cart from './Pages/Cart.jsx'
 import Login from './Pages/Login.jsx'
 import Contact from './Pages/Contact.jsx'
 import Profile from "./Pages/Profile.jsx";
-
+import ManageProducts from "./Pages/ManageProducts.jsx";
 function App() {
   const [count, setCount] = useState(0)
 
@@ -34,6 +34,7 @@ function App() {
     <Route path="/Login" element={<Login/>}/>
 <Route path="/Contact" element={<Contact/>}/>
 <Route path="/Profile" element={<Profile />} />
+<Route path="/ManageProducts" element={<ManageProducts />} />
 
 
    </Routes>
