@@ -46,10 +46,13 @@ function Cart() {
               >
                 {/* Image */}
                 <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-28 h-28 object-cover rounded-xl"
-                />
+                         src={
+                               item.image
+                               ? `http://localhost:3000${item.image}`
+                               : "https://via.placeholder.com/300" }
+                               alt={item.name}
+                               className="w-32 h-32 object-cover rounded-xl"
+                   />
 
                 {/* Details */}
                 <div className="flex-1 w-full">

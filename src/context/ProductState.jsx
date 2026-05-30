@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from "react";
 import ProductContext from "./ProductContext";
 import Reduce from "./Reduce";
-
+import { toast } from "react-toastify";
 function ProductState(props) {
   const initialState = {
     products: [],
@@ -75,14 +75,14 @@ function ProductState(props) {
     });
 
     const json = await response.json();
-
+  console.log("Added Product Response:", json);
     if (json.success) {
       dispatch({
         type: "ADD_PRODUCT",
         payload: json.product,
       });
     }
-
+    toast.success("Product Added Successfully");
     return json;
   };
 
@@ -111,6 +111,7 @@ function ProductState(props) {
     );
 
     const json = await response.json();
+    console.log("Updated Product Response:", json);
 
     if (json.success) {
       dispatch({
@@ -118,7 +119,7 @@ function ProductState(props) {
         payload: json.product,
       });
     }
-
+    toast.success("Product Updated Successfully");
     return json;
   };
 
@@ -135,14 +136,14 @@ function ProductState(props) {
     );
 
     const json = await response.json();
-
+console.log("Delete Product Response:", json);
     if (json.success) {
       dispatch({
         type: "DELETE_PRODUCT",
         payload: id,
       });
     }
-
+    toast.error("Product Deleted");
     return json;
   };
 
@@ -159,6 +160,7 @@ function ProductState(props) {
       type: "ADD_CART",
       payload: product,
     });
+    toast.success("Added To Cart");
   };
 
   // Remove item from cart
@@ -167,6 +169,7 @@ function ProductState(props) {
       type: "REMOVE_CART",
       payload: id,
     });
+    toast.info("Removed From Cart");
   };
 
   useEffect(() => {
